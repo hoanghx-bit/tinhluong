@@ -37,9 +37,9 @@
     ];
 
     const DEFAULT_PROGRAMS = [
-      { id: 'PRG1', name: 'Đại lý Cấp 1', target: 10000000, reward: 'Chiết khấu thêm 5% tổng bill' },
-      { id: 'PRG2', name: 'Khách lẻ', target: 0, reward: 'Không' },
-      { id: 'PRG3', name: 'Chương trình Tri ân', target: 5000000, reward: 'Tặng 1 thùng bánh Tipo' }
+      { id: 'PRG1', name: 'Đại lý Cấp 1', target: 10000000, reward: 500000 },
+      { id: 'PRG2', name: 'Khách lẻ', target: 0, reward: 0 },
+      { id: 'PRG3', name: 'Chương trình Tri ân', target: 5000000, reward: 200000 }
     ];
 
     const DEFAULT_CUSTOMERS = [
@@ -48,6 +48,23 @@
     ];
 
     const formatVND = (amount) => new Intl.NumberFormat('vi-VN', { style: 'currency', currency: 'VND' }).format(amount || 0);
+
+    // Tính tiền chi trả khi đạt chương trình
+    // reward là số tiền cố định (VNĐ) được cài đặt trong chương trình
+    // Nếu đạt chỉ tiêu → chi trả đúng số tiền đó; chưa đạt → 0
+    const calculatePayout = (program, revenue) => {
+      if (!program) return { amount: 0, isReached: false };
+      const target = Number(program.target) || 0;
+      const rewardAmount = Number(program.reward) || 0;
+      if (target === 0) {
+        return { amount: 0, isReached: false };
+      }
+      const isReached = revenue >= target;
+      return {
+        amount: isReached ? rewardAmount : 0,
+        isReached
+      };
+    };
 
     // Modal UI Component
     function Modal({ title, onClose, children }) {
@@ -133,7 +150,7 @@
             {activeTab === 'customers' && <CustomerTab customers={customers} setCustomers={setCustomers} programs={programs} setPrograms={setPrograms} showToast={showToast} />}
             {activeTab === 'price_list' && <PriceListTab products={products} setProducts={setProducts} showToast={showToast} />}
             {activeTab === 'orders_create' && <CreateOrderTab products={products} customers={customers} programs={programs} orders={orders} setOrders={setOrders} showToast={showToast} />}
-            {activeTab === 'analytics' && <AnalyticsTab orders={orders} customers={customers} programs={programs} />}
+            {activeTab === 'analytics' && <AnalyticsTab orders={orders} setOrders={setOrders} customers={customers} programs={programs} />}
           </main>
         </div>
       );
@@ -179,7 +196,7 @@
       // Quản lý chương trình
       const [newProgName, setNewProgName] = useState('');
       const [newProgTarget, setNewProgTarget] = useState(0);
-      const [newProgReward, setNewProgReward] = useState('');
+      const [newProgReward, setNewProgReward] = useState(0);
       const [editingProgram, setEditingProgram] = useState(null);
 
       const handleAddProgram = (e) => {
@@ -188,11 +205,11 @@
         const newProg = {
           id: `PRG${Date.now().toString().slice(-4)}`,
           name: newProgName.trim(),
-          target: Number(newProgTarget),
-          reward: newProgReward.trim() || 'Không'
+          target: Number(newProgTarget) || 0,
+          reward: Number(newProgReward) || 0
         };
         setPrograms([...programs, newProg]);
-        setNewProgName(''); setNewProgTarget(0); setNewProgReward('');
+        setNewProgName(''); setNewProgTarget(0); setNewProgReward(0);
         showToast('Đã thêm chương trình mới!');
       };
 
@@ -333,11 +350,11 @@
                   <div className="grid grid-cols-1 sm:grid-cols-2 gap-2.5">
                     <div>
                       <label className="block text-[11px] mb-1 text-slate-500 font-semibold">Mức doanh số đăng ký (VNĐ)</label>
-                      <input type="number" value={newProgTarget} onChange={e => setNewProgTarget(e.target.value)} className="w-full border p-2 rounded-lg bg-white" />
+                      <input type="number" value={newProgTarget} onChange={e => setNewProgTarget(e.target.value)} min="0" className="w-full border p-2 rounded-lg bg-white" />
                     </div>
                     <div>
-                      <label className="block text-[11px] mb-1 text-slate-500 font-semibold">Chi trả (nếu đạt doanh số)</label>
-                      <input type="text" value={newProgReward} onChange={e => setNewProgReward(e.target.value)} placeholder="VD: Tặng 1 thùng..." className="w-full border p-2 rounded-lg bg-white" />
+                      <label className="block text-[11px] mb-1 text-slate-500 font-semibold">Số tiền chi trả nếu đạt (VNĐ)</label>
+                      <input type="number" value={newProgReward} onChange={e => setNewProgReward(e.target.value)} min="0" placeholder="VD: 500000" className="w-full border p-2 rounded-lg bg-white" />
                     </div>
                   </div>
                   <button type="submit" className="w-full bg-emerald-600 hover:bg-emerald-700 text-white py-2.5 rounded-lg font-bold shadow-sm">Thêm Chương Trình</button>
@@ -351,8 +368,14 @@
                           <form onSubmit={handleUpdateProgram} className="space-y-2">
                             <input type="text" value={editingProgram.name} onChange={e => setEditingProgram({...editingProgram, name: e.target.value})} className="w-full border p-1.5 rounded text-xs" required />
                             <div className="grid grid-cols-2 gap-2">
-                              <input type="number" value={editingProgram.target} onChange={e => setEditingProgram({...editingProgram, target: Number(e.target.value)})} className="border p-1.5 rounded text-xs" placeholder="Doanh số" />
-                              <input type="text" value={editingProgram.reward} onChange={e => setEditingProgram({...editingProgram, reward: e.target.value})} className="border p-1.5 rounded text-xs" placeholder="Chi trả" />
+                              <div>
+                                <label className="block text-[10px] text-slate-500 mb-0.5">Chỉ tiêu (VNĐ)</label>
+                                <input type="number" value={editingProgram.target} onChange={e => setEditingProgram({...editingProgram, target: Number(e.target.value)})} className="w-full border p-1.5 rounded text-xs" placeholder="Doanh số" min="0" />
+                              </div>
+                              <div>
+                                <label className="block text-[10px] text-slate-500 mb-0.5">Tiền chi trả (VNĐ)</label>
+                                <input type="number" value={editingProgram.reward} onChange={e => setEditingProgram({...editingProgram, reward: Number(e.target.value)})} className="w-full border p-1.5 rounded text-xs" placeholder="Số tiền" min="0" />
+                              </div>
                             </div>
                             <div className="flex justify-end space-x-2 pt-1">
                               <button type="button" onClick={() => setEditingProgram(null)} className="text-slate-500 px-3 py-1 rounded bg-slate-200 text-xs font-bold">Hủy</button>
@@ -365,11 +388,11 @@
                               <span className="font-bold text-slate-900 text-sm">{p.name}</span>
                               <div className="text-[11px] text-slate-500 mt-1 space-y-0.5">
                                 <p>🎯 Chỉ tiêu doanh số: <span className="font-semibold text-rose-600">{formatVND(p.target)}</span></p>
-                                <p>🎁 Chi trả nếu đạt: <span className="font-semibold text-emerald-600">{p.reward}</span></p>
+                                <p>💸 Chi trả nếu đạt: <span className="font-semibold text-emerald-600">{formatVND(p.reward)}</span></p>
                               </div>
                             </div>
                             <div className="flex space-x-1 text-xs">
-                              <button onClick={() => setEditingProgram(p)} className="text-amber-600 font-bold bg-amber-50 px-2 py-1 rounded">Sửa</button>
+                              <button onClick={() => setEditingProgram({...p, reward: Number(p.reward) || 0, target: Number(p.target) || 0})} className="text-amber-600 font-bold bg-amber-50 px-2 py-1 rounded">Sửa</button>
                               <button onClick={() => handleDeleteProgram(p.id, p.name)} className="text-rose-600 font-bold bg-rose-50 px-2 py-1 rounded">Xóa</button>
                             </div>
                           </div>
@@ -510,13 +533,15 @@
     }
 
     // ==========================================
-    // TAB LÊN ĐƠN (Đã cập nhật step 0.5)
+    // TAB LÊN ĐƠN (Thêm giỏ hàng tạm thời)
     // ==========================================
     function CreateOrderTab({ products, customers, programs, orders, setOrders, showToast }) {
       const [customerId, setCustomerId] = useState(customers[0]?.id || '');
       const [productId, setProductId] = useState(products[0]?.id || '');
       const [unit, setUnit] = useState('Thùng');
       const [qty, setQty] = useState(1);
+      
+      const [tempOrders, setTempOrders] = useState([]);
 
       useEffect(() => { if (customers.length > 0 && !customers.find(c => c.id === customerId)) setCustomerId(customers[0].id); }, [customers]);
 
@@ -524,7 +549,7 @@
       const selectedProduct = products.find(p => p.id === productId);
       const currentPrice = selectedProduct ? (unit === 'Lẻ' ? selectedProduct.retailPrice : selectedProduct.boxPriceSell) : 0;
 
-      const handleCreate = (e) => {
+      const handleAddTemp = (e) => {
         e.preventDefault();
         const parsedQty = Number(qty);
         if (!selectedProduct || currentPrice === 0) return showToast('Sản phẩm chưa có giá bán!', 'error');
@@ -532,7 +557,7 @@
         if (isNaN(parsedQty) || parsedQty < 0.5) return showToast('Số lượng tối thiểu là 0,5!', 'error');
 
         const newOrder = {
-          id: `DH${Date.now().toString().slice(-6)}`, 
+          id: `DH${Date.now().toString().slice(-6)}${Math.floor(Math.random()*100)}`, 
           customerId: selectedCustomer.id, 
           customerName: selectedCustomer.name,
           productName: selectedProduct.name,
@@ -540,64 +565,128 @@
           date: new Date().toISOString().split('T')[0]
         };
 
-        setOrders([newOrder, ...orders]); showToast('Đã chốt đơn thành công!'); setQty(1);
+        setTempOrders([newOrder, ...tempOrders]);
+        showToast('Đã thêm vào đơn tạm tính!');
+        setQty(1);
+      };
+      
+      const handleRemoveTemp = (id) => {
+        setTempOrders(tempOrders.filter(o => o.id !== id));
+      };
+      
+      const handleConfirmSave = () => {
+        if(tempOrders.length === 0) return;
+        setOrders([...tempOrders, ...orders]);
+        setTempOrders([]);
+        showToast('Đã lưu tất cả đơn hàng thành công!', 'success');
       };
 
       const getProgramName = (id) => programs.find(p => p.id === id)?.name || '';
+      
+      const totalTempAmount = tempOrders.reduce((sum, o) => sum + o.total, 0);
 
       return (
-        <div className="bg-white p-4 sm:p-6 rounded-2xl shadow-sm border border-slate-200 max-w-lg mx-auto">
-          <div className="flex items-center space-x-2 mb-4 sm:mb-6"><span className="text-xl">✍️</span><h2 className="text-base sm:text-lg font-bold text-slate-900">Lên Đơn Hàng Mới</h2></div>
-          <form onSubmit={handleCreate} className="space-y-3 sm:space-y-4 text-xs sm:text-sm font-medium">
-            <div>
-              <label className="block text-slate-600 mb-1">Khách hàng</label>
-              <select value={customerId} onChange={e => setCustomerId(e.target.value)} className="w-full bg-slate-50 border p-2.5 rounded-xl">
-                {customers.length === 0 && <option value="">-- Chưa có KH --</option>}
-                {customers.map(c => <option key={c.id} value={c.id}>{c.name} - {getProgramName(c.programId)}</option>)}
-              </select>
-            </div>
-            <div>
-              <label className="block text-slate-600 mb-1">Chọn Sản Phẩm</label>
-              <select value={productId} onChange={e => setProductId(e.target.value)} className="w-full bg-slate-50 border p-2.5 rounded-xl">
-                {products.map(p => <option key={p.id} value={p.id}>{p.name}</option>)}
-              </select>
-            </div>
-            <div className="grid grid-cols-2 gap-3 sm:gap-4">
+        <div className="space-y-4 max-w-2xl mx-auto">
+          {/* Box Lên Đơn */}
+          <div className="bg-white p-4 sm:p-6 rounded-2xl shadow-sm border border-slate-200">
+            <div className="flex items-center space-x-2 mb-4 sm:mb-6"><span className="text-xl">✍️</span><h2 className="text-base sm:text-lg font-bold text-slate-900">Lên Đơn Hàng Mới</h2></div>
+            <form onSubmit={handleAddTemp} className="space-y-3 sm:space-y-4 text-xs sm:text-sm font-medium">
               <div>
-                <label className="block text-slate-600 mb-1">Hình thức bán</label>
-                <select value={unit} onChange={e => setUnit(e.target.value)} className="w-full bg-slate-50 border p-2.5 rounded-xl">
-                  <option value="Thùng">Bán Thùng</option>
-                  <option value="Lẻ">Bán Lẻ</option>
+                <label className="block text-slate-600 mb-1">Khách hàng</label>
+                <select value={customerId} onChange={e => setCustomerId(e.target.value)} className="w-full bg-slate-50 border p-2.5 rounded-xl">
+                  {customers.length === 0 && <option value="">-- Chưa có KH --</option>}
+                  {customers.map(c => <option key={c.id} value={c.id}>{c.name} - {getProgramName(c.programId)}</option>)}
                 </select>
               </div>
               <div>
-                <label className="block text-slate-600 mb-1">Số lượng (tối thiểu 0,5)</label>
-                <input 
-                  type="number" 
-                  step="0.5" 
-                  min="0.5" 
-                  value={qty} 
-                  onChange={e => setQty(e.target.value)} 
-                  className="w-full bg-slate-50 border p-2.5 rounded-xl" 
-                />
+                <label className="block text-slate-600 mb-1">Chọn Sản Phẩm</label>
+                <select value={productId} onChange={e => setProductId(e.target.value)} className="w-full bg-slate-50 border p-2.5 rounded-xl">
+                  {products.map(p => <option key={p.id} value={p.id}>{p.name}</option>)}
+                </select>
               </div>
+              <div className="grid grid-cols-2 gap-3 sm:gap-4">
+                <div>
+                  <label className="block text-slate-600 mb-1">Hình thức bán</label>
+                  <select value={unit} onChange={e => setUnit(e.target.value)} className="w-full bg-slate-50 border p-2.5 rounded-xl">
+                    <option value="Thùng">Bán Thùng</option>
+                    <option value="Lẻ">Bán Lẻ</option>
+                  </select>
+                </div>
+                <div>
+                  <label className="block text-slate-600 mb-1">Số lượng (tối thiểu 0,5)</label>
+                  <input 
+                    type="number" 
+                    step="0.5" 
+                    min="0.5" 
+                    value={qty} 
+                    onChange={e => setQty(e.target.value)} 
+                    className="w-full bg-slate-50 border p-2.5 rounded-xl" 
+                  />
+                </div>
+              </div>
+              <div className="bg-slate-50 p-3.5 sm:p-4 rounded-xl border border-slate-200">
+                <div className="flex justify-between text-slate-500 mb-1 text-xs"><span>Đơn giá ({unit}):</span><span>{formatVND(currentPrice)}</span></div>
+                <div className="flex justify-between font-black text-base sm:text-lg text-indigo-950 border-t pt-2 mt-2"><span>Tạm tính (chưa lưu):</span><span className="text-emerald-600">{formatVND(currentPrice * (Number(qty) || 0))}</span></div>
+              </div>
+              <button type="submit" className="w-full bg-slate-800 hover:bg-slate-900 text-white font-bold py-3.5 rounded-xl shadow transition">➕ Thêm Vào Đơn Tạm Tính</button>
+            </form>
+          </div>
+          
+          {/* Box Đơn Tạm Tính */}
+          {tempOrders.length > 0 && (
+            <div className="bg-white p-4 sm:p-6 rounded-2xl shadow-sm border border-slate-200 animate-[fadeIn_0.3s_ease-out]">
+              <h3 className="text-base font-bold text-slate-900 mb-4 flex items-center space-x-2"><span>🛒</span><span>Đơn Tạm Tính ({tempOrders.length})</span></h3>
+              <div className="overflow-x-auto mb-4">
+                <table className="w-full text-left whitespace-nowrap">
+                  <thead className="bg-slate-50 text-[10px] font-bold text-slate-500 uppercase">
+                    <tr>
+                      <th className="py-2 px-3">Sản Phẩm</th>
+                      <th className="py-2 px-3 text-center">SL</th>
+                      <th className="py-2 px-3 text-right">Thành Tiền</th>
+                      <th className="py-2 px-3 text-center">Bỏ</th>
+                    </tr>
+                  </thead>
+                  <tbody className="divide-y divide-slate-100 text-xs font-medium">
+                    {tempOrders.map(o => (
+                      <tr key={o.id} className="hover:bg-slate-50">
+                        <td className="py-2 px-3">{o.productName} <span className="text-[10px] bg-slate-200 px-1.5 py-0.5 rounded ml-1">{o.unit}</span></td>
+                        <td className="py-2 px-3 text-center font-bold">{o.qty}</td>
+                        <td className="py-2 px-3 text-right text-emerald-600 font-bold">{formatVND(o.total)}</td>
+                        <td className="py-2 px-3 text-center">
+                          <button onClick={() => handleRemoveTemp(o.id)} className="text-rose-400 hover:text-rose-600 font-bold text-sm">❌</button>
+                        </td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
+              
+              {/* Tổng doanh số đơn tạm tính */}
+              <div className="bg-emerald-50 p-4 rounded-xl border border-emerald-100 mb-5">
+                <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-1 sm:gap-0">
+                  <span className="font-bold text-emerald-900 text-sm">Tổng doanh số đơn tạm tính:</span>
+                  <span className="font-black text-xl text-emerald-700">{formatVND(totalTempAmount)}</span>
+                </div>
+              </div>
+
+              <button onClick={handleConfirmSave} className="w-full bg-indigo-600 hover:bg-indigo-700 text-white font-bold py-3.5 rounded-xl shadow transition flex justify-center items-center space-x-2">
+                <span>✅</span><span>Xác Nhận Lưu Đơn Hàng</span>
+              </button>
             </div>
-            <div className="bg-slate-50 p-3.5 sm:p-4 rounded-xl border border-slate-200">
-              <div className="flex justify-between text-slate-500 mb-1 text-xs"><span>Đơn giá ({unit}):</span><span>{formatVND(currentPrice)}</span></div>
-              <div className="flex justify-between font-black text-base sm:text-lg text-indigo-950 border-t pt-2 mt-2"><span>Thành tiền:</span><span className="text-emerald-600">{formatVND(currentPrice * (Number(qty) || 0))}</span></div>
-            </div>
-            <button type="submit" className="w-full bg-indigo-950 hover:bg-indigo-900 text-white font-bold py-3.5 rounded-xl shadow transition">✅ Lưu Đơn Hàng</button>
-          </form>
+          )}
         </div>
       );
     }
 
     // ==========================================
-    // TAB THỐNG KÊ (Khách hàng từ danh sách đăng ký)
+    // TAB THỐNG KÊ (Sửa ngày lên đơn)
     // ==========================================
-    function AnalyticsTab({ orders, customers, programs }) {
+    function AnalyticsTab({ orders, setOrders, customers, programs }) {
       const [filterCustId, setFilterCustId] = useState('all');
       const [filterMonth, setFilterMonth] = useState('all');
+      
+      const [editingOrderId, setEditingOrderId] = useState(null);
+      const [editDate, setEditDate] = useState('');
 
       const availableMonths = useMemo(() => Array.from(new Set(orders.map(o => o.date.substring(0, 7)))).sort().reverse(), [orders]);
       
@@ -609,34 +698,70 @@
       
       const totalRevenue = filteredOrders.reduce((sum, o) => sum + o.total, 0);
 
+      // Gom doanh số theo từng customerId từ filteredOrders
+      const revenueByCustomer = useMemo(() => {
+        const map = {};
+        filteredOrders.forEach(o => {
+          map[o.customerId] = (map[o.customerId] || 0) + o.total;
+        });
+        return map;
+      }, [filteredOrders]);
+
+      // Tổng tiền chi trả luôn hiển thị (cộng dồn theo từng khách đạt chỉ tiêu)
+      const totalPayoutAmount = useMemo(() => {
+        let sum = 0;
+        Object.keys(revenueByCustomer).forEach(custId => {
+          const cust = customers.find(c => c.id === custId);
+          if (!cust) return;
+          const prog = programs.find(p => p.id === cust.programId);
+          if (!prog) return;
+          const payout = calculatePayout(prog, revenueByCustomer[custId]);
+          sum += payout.amount;
+        });
+        return sum;
+      }, [revenueByCustomer, customers, programs]);
+
+      const handleSaveDate = (id) => {
+        if(editDate) {
+          setOrders(orders.map(o => o.id === id ? { ...o, date: editDate } : o));
+        }
+        setEditingOrderId(null);
+      };
+
+      // Khi chọn 1 khách hàng cụ thể → vẫn hiện card tiến độ chi tiết
       let progressCard = null;
       if (filterCustId !== 'all') {
         const selCust = customers.find(c => c.id === filterCustId);
         if (selCust) {
           const custProg = programs.find(p => p.id === selCust.programId);
           if (custProg) {
-            const isReached = totalRevenue >= custProg.target;
-            const missing = custProg.target - totalRevenue;
+            const custRevenue = revenueByCustomer[filterCustId] || 0;
+            const payout = calculatePayout(custProg, custRevenue);
+            const missing = (Number(custProg.target) || 0) - custRevenue;
             
             progressCard = (
-              <div className={`p-4 sm:p-5 rounded-2xl shadow-sm border ${isReached && custProg.target > 0 ? 'bg-emerald-50 border-emerald-200' : 'bg-white border-slate-200'} mt-3 sm:mt-4 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3`}>
+              <div className={`p-4 sm:p-5 rounded-2xl shadow-sm border ${payout.isReached && custProg.target > 0 ? 'bg-emerald-50 border-emerald-200' : 'bg-white border-slate-200'} mt-3 sm:mt-4 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3`}>
                 <div>
                   <h3 className="font-bold text-slate-800 text-xs sm:text-sm">Chương trình: <span className="text-indigo-700">{custProg.name}</span></h3>
                   <p className="text-xs sm:text-sm text-slate-600 mt-1">Chỉ tiêu doanh số: <span className="font-semibold">{formatVND(custProg.target)}</span></p>
+                  <p className="text-xs sm:text-sm text-slate-600 mt-1">Số tiền chi trả nếu đạt: <span className="font-semibold text-emerald-700">{formatVND(custProg.reward)}</span></p>
                 </div>
                 
                 <div className="w-full sm:w-auto text-left sm:text-right pt-2 sm:pt-0 border-t sm:border-0 border-slate-200">
                   {custProg.target === 0 ? (
                     <span className="text-slate-500 text-xs sm:text-sm font-medium italic">Không có chỉ tiêu doanh số</span>
-                  ) : isReached ? (
+                  ) : payout.isReached ? (
                     <div>
                       <span className="bg-emerald-500 text-white px-3 py-1 rounded-full text-xs font-bold uppercase tracking-wider shadow-sm inline-block">Đạt</span>
-                      <p className="text-xs sm:text-sm font-bold text-emerald-700 mt-1.5">Chi trả: {custProg.reward}</p>
+                      <p className="text-xs sm:text-sm font-bold text-emerald-700 mt-1.5">
+                        Tiền chi trả: {formatVND(payout.amount)}
+                      </p>
                     </div>
                   ) : (
                     <div>
                       <span className="bg-rose-100 text-rose-700 px-3 py-1 rounded-full text-xs font-bold shadow-sm inline-block">Chưa đủ</span>
                       <p className="text-xs sm:text-sm font-semibold text-rose-600 mt-1.5">Doanh số còn thiếu: {formatVND(missing)}</p>
+                      <p className="text-xs sm:text-sm font-semibold text-slate-500 mt-1">Tiền chi trả: 0 ₫</p>
                     </div>
                   )}
                 </div>
@@ -665,11 +790,29 @@
             </div>
           </div>
 
-          <div className="bg-indigo-950 text-white p-5 sm:p-6 rounded-2xl shadow-lg relative overflow-hidden">
-            <div className="absolute right-[-20px] top-[-20px] text-7xl sm:text-8xl opacity-10">💰</div>
-            <p className="text-indigo-200 font-bold text-xs sm:text-sm">Tổng Doanh Thu Phân Khúc Này</p>
-            <h2 className="text-2xl sm:text-4xl font-black mt-2 text-amber-400">{formatVND(totalRevenue)}</h2>
-            <p className="text-[11px] sm:text-xs text-indigo-200 mt-2">Dựa trên {filteredOrders.length} đơn hàng.</p>
+          {/* Tổng Doanh Thu + Tổng tiền chi trả nằm cạnh nhau */}
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4">
+            <div className="bg-indigo-950 text-white p-5 sm:p-6 rounded-2xl shadow-lg relative overflow-hidden">
+              <div className="absolute right-[-16px] top-[-16px] text-6xl sm:text-7xl opacity-10">💰</div>
+              <p className="text-indigo-200 font-bold text-xs sm:text-sm">Tổng Doanh Thu</p>
+              <h2 className="text-xl sm:text-3xl font-black mt-2 text-amber-400">{formatVND(totalRevenue)}</h2>
+              <p className="text-[11px] sm:text-xs text-indigo-200 mt-2">{filteredOrders.length} đơn hàng{filterMonth !== 'all' ? ' trong tháng' : ''}.</p>
+            </div>
+
+            <div className="bg-emerald-600 text-white p-5 sm:p-6 rounded-2xl shadow-lg relative overflow-hidden">
+              <div className="absolute right-[-16px] top-[-16px] text-6xl sm:text-7xl opacity-10">💸</div>
+              <p className="text-emerald-100 font-bold text-xs sm:text-sm">
+                Tổng tiền phải chi trả {filterMonth !== 'all' ? 'trong tháng' : 'trong kỳ'}
+              </p>
+              <h2 className="text-xl sm:text-3xl font-black mt-2 text-white">
+                {totalPayoutAmount > 0 ? formatVND(totalPayoutAmount) : '0 ₫'}
+              </h2>
+              <p className="text-[11px] sm:text-xs text-emerald-100 mt-2">
+                {filterCustId === 'all'
+                  ? 'Cho tất cả khách đạt chỉ tiêu'
+                  : (totalPayoutAmount > 0 ? 'Đã đạt chỉ tiêu' : 'Chưa đạt chỉ tiêu')}
+              </p>
+            </div>
           </div>
 
           {progressCard}
@@ -680,7 +823,7 @@
                 <thead className="bg-slate-50 text-[10px] font-bold text-slate-500 uppercase">
                   <tr>
                     <th className="py-3 px-3 sm:px-4">Mã Đơn</th>
-                    <th className="py-3 px-3 sm:px-4">Ngày</th>
+                    <th className="py-3 px-3 sm:px-4">Ngày Lên Đơn</th>
                     <th className="py-3 px-3 sm:px-4">Khách Hàng</th>
                     <th className="py-3 px-3 sm:px-4">Sản Phẩm</th>
                     <th className="py-3 px-3 sm:px-4 text-center">SL</th>
@@ -691,7 +834,20 @@
                   {filteredOrders.length === 0 ? <tr><td colSpan="6" className="py-8 text-center text-slate-400">Chưa có dữ liệu...</td></tr> : filteredOrders.map(o => (
                     <tr key={o.id} className="hover:bg-slate-50">
                       <td className="py-3 px-3 sm:px-4 text-indigo-600 font-bold">{o.id}</td>
-                      <td className="py-3 px-3 sm:px-4 text-slate-500">{o.date}</td>
+                      <td className="py-3 px-3 sm:px-4">
+                        {editingOrderId === o.id ? (
+                          <div className="flex items-center space-x-1">
+                            <input type="date" value={editDate} onChange={e => setEditDate(e.target.value)} className="border border-slate-300 rounded px-1.5 py-1 text-xs bg-white text-slate-800" />
+                            <button onClick={() => handleSaveDate(o.id)} className="text-emerald-600 hover:bg-emerald-50 rounded px-1.5 py-1">💾</button>
+                            <button onClick={() => setEditingOrderId(null)} className="text-rose-500 hover:bg-rose-50 rounded px-1.5 py-1">❌</button>
+                          </div>
+                        ) : (
+                          <div className="flex items-center space-x-2 text-slate-500">
+                            <span>{o.date}</span>
+                            <button onClick={() => { setEditingOrderId(o.id); setEditDate(o.date); }} className="text-slate-400 hover:text-amber-500 transition">✏️</button>
+                          </div>
+                        )}
+                      </td>
                       <td className="py-3 px-3 sm:px-4 font-bold">{o.customerName}</td>
                       <td className="py-3 px-3 sm:px-4">{o.productName} <span className="text-[10px] bg-slate-200 px-1.5 py-0.5 rounded ml-1">{o.unit}</span></td>
                       <td className="py-3 px-3 sm:px-4 text-center font-bold">{o.qty}</td>
