@@ -3,8 +3,8 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
-  <title>Quản Lý Bán Hàng</title>
-  <meta name="description" content="Hệ thống quản lý bán hàng, khách hàng, đơn hàng và thống kê doanh số">
+  <title>Quản Lý Trưng Bày</title>
+  <meta name="description" content="Hệ thống quản lý chương trình cho khách hàng">
   <meta name="theme-color" content="#1e1b4b">
   <meta name="apple-mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
@@ -49,9 +49,9 @@
     ];
 
     const DEFAULT_PROGRAMS = [
-      { id: 'PRG1', name: 'Đại lý Cấp 1', target: 10000000, reward: 500000 },
-      { id: 'PRG2', name: 'Khách lẻ', target: 0, reward: 0 },
-      { id: 'PRG3', name: 'Chương trình Tri ân', target: 5000000, reward: 200000 }
+      { id: 'PRG1', name: 'Trưng bày ', target: 10000000, reward: 500000 },
+      { id: 'PRG2', name: 'Tích lũy 2 triệu ', target: 0, reward: 0 },
+      { id: 'PRG3', name: 'Tích lũy 3 triệu ', target: 5000000, reward: 200000 }
     ];
 
     const DEFAULT_CUSTOMERS = [
@@ -128,7 +128,7 @@
               <div className="flex items-center space-x-3 py-3 sm:py-4">
                 <div className="bg-amber-400 text-indigo-950 p-2 rounded-xl font-black text-sm sm:text-lg shadow-sm">🚀</div>
                 <div>
-                  <h1 className="font-extrabold text-sm sm:text-lg leading-tight">Hệ Thống Quản Lý Bán Hàng</h1>
+                  <h1 className="font-extrabold text-sm sm:text-lg leading-tight">Hệ Thống Quản Lý Trưng Bày</h1>
                   <p className="text-[10px] sm:text-[11px] text-indigo-200">Phiên bản tối ưu mobile & doanh số</p>
                 </div>
               </div>
@@ -817,7 +817,7 @@
             <div className="bg-emerald-600 text-white p-5 sm:p-6 rounded-2xl shadow-lg relative overflow-hidden">
               <div className="absolute right-[-16px] top-[-16px] text-6xl sm:text-7xl opacity-10">💸</div>
               <p className="text-emerald-100 font-bold text-xs sm:text-sm">
-                Tổng tiền phải chi trả {filterMonth !== 'all' ? 'trong tháng' : 'trong kỳ'}
+                Tổng tiền đã chi trả {filterMonth !== 'all' ? 'trong tháng' : 'trong kỳ'}
               </p>
               <h2 className="text-xl sm:text-3xl font-black mt-2 text-white">
                 {totalPayoutAmount > 0 ? formatVND(totalPayoutAmount) : '0 ₫'}
