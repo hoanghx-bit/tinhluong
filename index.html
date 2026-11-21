@@ -253,4 +253,747 @@
                         <div>
                             <label for="inputBoxRate" class="block text-[11px] font-medium text-slate-500 mb-1">Đơn giá thưởng/thùng (đ)</label>
                             <input type="number" id="inputBoxRate" placeholder="VD: 5000" min="0" step="500" class="w-full px-2.5 py-1.5 text-xs sm:text-sm font-semibold text-slate-900 bg-slate-50 border border-slate-200 rounded-lg focus:bg-white focus:outline-none focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500">
-                        </d
+                        </div>
+                        <div>
+                            <label for="inputBoxQty" class="block text-[11px] font-medium text-slate-500 mb-1">Số thùng bán được</label>
+                            <input type="number" id="inputBoxQty" placeholder="VD: 120" min="0" step="1" class="w-full px-2.5 py-1.5 text-xs sm:text-sm font-semibold text-slate-900 bg-slate-50 border border-slate-200 rounded-lg focus:bg-white focus:outline-none focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500">
+                        </div>
+                    </div>
+                </section>
+            </div>
+
+            <!-- CỘT PHẢI: TỔNG KẾT & BẢNG PHÂN TÍCH CHI TIẾT (5 cột trên md+) -->
+            <div class="md:col-span-5 md:sticky md:top-3">
+                <div class="bg-white rounded-xl shadow-sm border border-slate-200/90 overflow-hidden">
+                    <!-- Thẻ hiển thị Tổng thực nhận gọn & nổi bật -->
+                    <div class="bg-gradient-to-br from-slate-900 via-slate-800 to-teal-950 p-4 text-white">
+                        <div class="flex items-center justify-between">
+                            <span class="text-[11px] font-semibold uppercase tracking-wider text-teal-300">Tổng lương thực nhận</span>
+                            <span id="badgeStatus" class="text-[10px] px-2 py-0.5 rounded-full bg-white/10 text-slate-200 border border-white/10">Đã trừ BHXH</span>
+                        </div>
+                        <div id="totalSalaryDisplay" class="text-2xl sm:text-3xl font-extrabold tracking-tight text-white mt-1 break-words">
+                            7,615,390 đ
+                        </div>
+                    </div>
+
+                    <!-- Bảng chi tiết từng khoản siêu gọn -->
+                    <div class="p-3.5">
+                        <div class="space-y-2 text-xs">
+                            <div class="flex items-center justify-between">
+                                <div>
+                                    <span class="text-slate-600">Lương cơ bản</span>
+                                    <span id="summaryBaseNote" class="hidden text-[10px] font-medium text-rose-600 ml-1"></span>
+                                </div>
+                                <span id="summaryBase" class="font-semibold text-slate-900">5,682,000 đ</span>
+                            </div>
+
+                            <div class="flex items-center justify-between">
+                                <div>
+                                    <span class="text-slate-600">Phụ cấp</span>
+                                    <span id="summaryAllowanceNote" class="hidden text-[10px] font-medium text-amber-700 ml-1"></span>
+                                </div>
+                                <span id="summaryAllowance" class="font-semibold text-slate-900">2,530,000 đ</span>
+                            </div>
+
+                            <div class="border-t border-dashed border-slate-200 my-1.5"></div>
+
+                            <div class="flex items-center justify-between">
+                                <div class="flex items-center gap-1.5">
+                                    <span class="text-slate-600">Thưởng KPI</span>
+                                    <span id="summaryKpiCount" class="text-[10px] font-semibold px-1.5 py-0.2 rounded bg-slate-100 text-slate-600">0/3</span>
+                                    <span id="summaryKpiNote" class="hidden text-[10px] font-medium text-rose-600"></span>
+                                </div>
+                                <span id="summaryKpiAmount" class="font-semibold text-slate-400">0 đ</span>
+                            </div>
+
+                            <div class="flex items-center justify-between">
+                                <div class="flex items-center gap-1.5">
+                                    <span class="text-slate-600">Doanh số tháng</span>
+                                    <span id="summaryMonthlyTag" class="hidden text-[10px] font-semibold px-1.5 rounded bg-cyan-50 text-cyan-700"></span>
+                                </div>
+                                <span id="summaryMonthlySales" class="font-semibold text-slate-400">0 đ</span>
+                            </div>
+
+                            <div class="flex items-center justify-between">
+                                <div class="flex items-center gap-1.5">
+                                    <span class="text-slate-600">Doanh số quý</span>
+                                    <span id="summaryQuarterlyTag" class="hidden text-[10px] font-semibold px-1.5 rounded bg-amber-50 text-amber-700"></span>
+                                </div>
+                                <span id="summaryQuarterlySales" class="font-semibold text-slate-400">0 đ</span>
+                            </div>
+
+                            <div class="flex items-center justify-between">
+                                <div class="flex items-center gap-1.5">
+                                    <span class="text-slate-600">Thưởng đầu thùng</span>
+                                    <span id="summaryBoxDetail" class="hidden text-[10px] text-slate-400"></span>
+                                </div>
+                                <span id="summaryBoxBonus" class="font-semibold text-slate-400">0 đ</span>
+                            </div>
+
+                            <div class="pt-2 mt-1.5 border-t border-slate-200 flex items-center justify-between text-xs sm:text-sm">
+                                <span class="font-bold text-slate-700">Tổng thưởng thêm</span>
+                                <span id="summaryTotalBonus" class="font-bold text-teal-700">0 đ</span>
+                            </div>
+
+                            <!-- Dòng khấu trừ BHXH bắt buộc tự động (10.5% LCB) -->
+                            <div class="pt-2 mt-1.5 border-t border-dashed border-rose-200 flex items-start justify-between gap-2 bg-rose-50/60 px-2.5 py-2 rounded-lg">
+                                <div>
+                                    <div class="font-semibold text-rose-700 text-xs">Khấu trừ BHXH (10.5% LCB)</div>
+                                    <div id="summarySocialInsuranceNote" class="text-[10px] text-rose-600/85 mt-0.5">BHXH 8% • BHYT 1.5% • BHTN 1%</div>
+                                </div>
+                                <span id="summarySocialInsurance" class="font-bold text-rose-600 text-xs sm:text-sm whitespace-nowrap">-596,610 đ</span>
+                            </div>
+                        </div>
+
+                        <!-- Nút hành động dưới bảng tổng kết -->
+                        <div class="mt-3.5 pt-3 border-t border-slate-100 flex items-center gap-2">
+                            <button type="button" id="btnExportImage" class="flex-1 py-2 px-3 rounded-lg bg-teal-600 hover:bg-teal-700 disabled:opacity-60 text-white font-semibold text-xs flex items-center justify-center gap-1.5 transition active:scale-[0.99] cursor-pointer shadow-xs">
+                                <svg xmlns="http://www.w3.org/2000/svg" class="h-3.5 w-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                                    <path stroke-linecap="round" stroke-linejoin="round" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
+                                </svg>
+                                <span id="btnExportImageLabel">Xuất hình ảnh</span>
+                            </button>
+                            <button type="button" id="btnResetBottom" class="py-2 px-2.5 rounded-lg bg-slate-100 hover:bg-slate-200 text-slate-700 font-semibold text-xs transition active:scale-[0.99] cursor-pointer" title="Đặt lại toàn bộ">
+                                Đặt lại
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+        </div>
+    </main>
+
+    <!-- Khung thẻ phiếu lương ẩn để render xuất hình ảnh sắc nét -->
+    <div id="exportCardContainer" class="fixed -left-[9999px] top-0 pointer-events-none" aria-hidden="true">
+        <div id="salaryExportCard" class="w-[420px] bg-white rounded-2xl border border-slate-200 overflow-hidden shadow-lg font-sans text-slate-800">
+            <div class="bg-gradient-to-br from-slate-900 via-teal-900 to-cyan-900 px-5 py-4 text-white">
+                <div class="flex items-center justify-between gap-2">
+                    <span class="text-[11px] font-bold uppercase tracking-wider text-teal-200">Phiếu Chi Tiết Lương</span>
+                    <span id="exportDateLabel" class="text-[11px] text-teal-100/90 font-medium"></span>
+                </div>
+                <div id="exportTotalSalary" class="text-3xl font-extrabold tracking-tight mt-1.5">0 đ</div>
+                <div id="exportStatusBadge" class="inline-block mt-1.5 text-[11px] px-2.5 py-0.5 rounded-full bg-white/15 text-teal-100 font-medium">
+                    Đã trừ BHXH
+                </div>
+            </div>
+
+            <div class="p-5 space-y-2.5 text-xs">
+                <div class="flex items-center justify-between py-1 border-b border-slate-100">
+                    <span class="text-slate-500 font-medium">Ngày công</span>
+                    <span id="exportWorkDays" class="font-semibold text-slate-800 text-right"></span>
+                </div>
+
+                <div class="flex items-center justify-between py-1">
+                    <span class="text-slate-600">Lương cơ bản thực nhận</span>
+                    <span id="exportBaseSalary" class="font-bold text-slate-900">0 đ</span>
+                </div>
+
+                <div class="flex items-center justify-between py-1">
+                    <span class="text-slate-600">Phụ cấp thực nhận</span>
+                    <span id="exportAllowance" class="font-bold text-slate-900">0 đ</span>
+                </div>
+
+                <div class="border-t border-dashed border-slate-200 my-1"></div>
+
+                <div class="flex items-center justify-between py-1">
+                    <span id="exportKpiLabel" class="text-slate-600">Thưởng KPI (0/3)</span>
+                    <span id="exportKpiAmount" class="font-semibold text-teal-700">0 đ</span>
+                </div>
+
+                <div class="flex items-center justify-between py-1">
+                    <span id="exportMonthlyLabel" class="text-slate-600">Thưởng doanh số tháng</span>
+                    <span id="exportMonthlyAmount" class="font-semibold text-cyan-700">0 đ</span>
+                </div>
+
+                <div class="flex items-center justify-between py-1">
+                    <span id="exportQuarterlyLabel" class="text-slate-600">Thưởng doanh số quý</span>
+                    <span id="exportQuarterlyAmount" class="font-semibold text-amber-700">0 đ</span>
+                </div>
+
+                <div class="flex items-center justify-between py-1">
+                    <span id="exportBoxLabel" class="text-slate-600">Thưởng đầu thùng</span>
+                    <span id="exportBoxAmount" class="font-semibold text-indigo-700">0 đ</span>
+                </div>
+
+                <div class="flex items-center justify-between pt-2 mt-1 border-t border-slate-200 text-xs font-bold">
+                    <span class="text-slate-700">Tổng thưởng thêm</span>
+                    <span id="exportTotalBonus" class="text-teal-700">0 đ</span>
+                </div>
+
+                <div class="flex items-center justify-between bg-rose-50 border border-rose-100 rounded-xl px-3 py-2 mt-1">
+                    <div>
+                        <div class="font-semibold text-rose-700">Khấu trừ BHXH (10.5% LCB)</div>
+                        <div id="exportInsuranceNote" class="text-[10px] text-rose-600/85">BHXH 8% • BHYT 1.5% • BHTN 1%</div>
+                    </div>
+                    <span id="exportInsuranceAmount" class="font-bold text-rose-600">-0 đ</span>
+                </div>
+
+                <div class="pt-2 flex items-center justify-between border-t-2 border-slate-800">
+                    <span class="font-extrabold text-slate-900 text-sm uppercase">Tổng thực nhận</span>
+                    <span id="exportFinalTotal" class="font-extrabold text-teal-700 text-base">0 đ</span>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Chân trang siêu gọn -->
+    <footer class="max-w-5xl w-full mx-auto px-4 py-2 text-center text-[11px] text-slate-400">
+        Ứng dụng tính lương tự động • Đơn vị: Việt Nam Đồng (đ)
+    </footer>
+
+    <!-- Logic JavaScript hoàn chỉnh -->
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            // Hằng số mặc định
+            const DEFAULT_BASE_SALARY = 5682000;
+            const DEFAULT_ALLOWANCE = 2530000;
+            const DEFAULT_STANDARD_DAYS = 26;
+            const KPI_UNIT_VALUE = 600000;
+            const SOCIAL_INSURANCE_RATE = 0.105; // 10.5% (BHXH 8% + BHYT 1.5% + BHTN 1%)
+            const SOCIAL_INSURANCE_CAP = 46800000; // Trần 20 lần mức lương tham chiếu (2,340,000 x 20)
+
+            // Trạng thái lựa chọn doanh số (không cộng dồn, cho phép bỏ chọn khi bấm lại)
+            let selectedMonthlySales = { amount: 0, label: '' };
+            let selectedQuarterlySales = { amount: 0, label: '' };
+            let isEditingFixed = false;
+            let isExportingImage = false;
+            let toastTimer = null;
+
+            // DOM: Thu nhập cố định & Ngày công
+            const inputBaseSalary = document.getElementById('inputBaseSalary');
+            const inputAllowance = document.getElementById('inputAllowance');
+            const displayBaseSalary = document.getElementById('displayBaseSalary');
+            const displayAllowance = document.getElementById('displayAllowance');
+            const editBaseWrapper = document.getElementById('editBaseWrapper');
+            const editAllowanceWrapper = document.getElementById('editAllowanceWrapper');
+            const toggleEditFixedBtn = document.getElementById('toggleEditFixed');
+
+            const inputStandardDays = document.getElementById('inputStandardDays');
+            const inputUnpaidLeave = document.getElementById('inputUnpaidLeave');
+            const inputPaidHolidayLeave = document.getElementById('inputPaidHolidayLeave');
+            const workDaysBadge = document.getElementById('workDaysBadge');
+
+            // DOM: KPI, Doanh số tháng, Doanh số quý, Đầu thùng
+            const kpiCheckboxes = document.querySelectorAll('.kpi-checkbox');
+            const monthlySalesBtns = document.querySelectorAll('.monthly-sales-btn');
+            const quarterlySalesBtns = document.querySelectorAll('.quarterly-sales-btn');
+            const inputBoxRate = document.getElementById('inputBoxRate');
+            const inputBoxQty = document.getElementById('inputBoxQty');
+            const boxBonusInlineTotal = document.getElementById('boxBonusInlineTotal');
+
+            // DOM: Bảng tổng kết
+            const totalSalaryDisplay = document.getElementById('totalSalaryDisplay');
+            const badgeStatus = document.getElementById('badgeStatus');
+            const summaryBase = document.getElementById('summaryBase');
+            const summaryBaseNote = document.getElementById('summaryBaseNote');
+            const summaryAllowance = document.getElementById('summaryAllowance');
+            const summaryAllowanceNote = document.getElementById('summaryAllowanceNote');
+            const summaryKpiCount = document.getElementById('summaryKpiCount');
+            const summaryKpiNote = document.getElementById('summaryKpiNote');
+            const summaryKpiAmount = document.getElementById('summaryKpiAmount');
+            const summaryMonthlyTag = document.getElementById('summaryMonthlyTag');
+            const summaryMonthlySales = document.getElementById('summaryMonthlySales');
+            const summaryQuarterlyTag = document.getElementById('summaryQuarterlyTag');
+            const summaryQuarterlySales = document.getElementById('summaryQuarterlySales');
+            const summaryBoxDetail = document.getElementById('summaryBoxDetail');
+            const summaryBoxBonus = document.getElementById('summaryBoxBonus');
+            const summaryTotalBonus = document.getElementById('summaryTotalBonus');
+            const summarySocialInsurance = document.getElementById('summarySocialInsurance');
+            const summarySocialInsuranceNote = document.getElementById('summarySocialInsuranceNote');
+
+            // DOM: Thẻ xuất ảnh
+            const salaryExportCard = document.getElementById('salaryExportCard');
+            const exportDateLabel = document.getElementById('exportDateLabel');
+            const exportTotalSalary = document.getElementById('exportTotalSalary');
+            const exportStatusBadge = document.getElementById('exportStatusBadge');
+            const exportWorkDays = document.getElementById('exportWorkDays');
+            const exportBaseSalary = document.getElementById('exportBaseSalary');
+            const exportAllowance = document.getElementById('exportAllowance');
+            const exportKpiLabel = document.getElementById('exportKpiLabel');
+            const exportKpiAmount = document.getElementById('exportKpiAmount');
+            const exportMonthlyLabel = document.getElementById('exportMonthlyLabel');
+            const exportMonthlyAmount = document.getElementById('exportMonthlyAmount');
+            const exportQuarterlyLabel = document.getElementById('exportQuarterlyLabel');
+            const exportQuarterlyAmount = document.getElementById('exportQuarterlyAmount');
+            const exportBoxLabel = document.getElementById('exportBoxLabel');
+            const exportBoxAmount = document.getElementById('exportBoxAmount');
+            const exportTotalBonus = document.getElementById('exportTotalBonus');
+            const exportInsuranceNote = document.getElementById('exportInsuranceNote');
+            const exportInsuranceAmount = document.getElementById('exportInsuranceAmount');
+            const exportFinalTotal = document.getElementById('exportFinalTotal');
+
+            // DOM: Các nút hành động & Toast
+            const btnMaxAll = document.getElementById('btnMaxAll');
+            const btnReset = document.getElementById('btnReset');
+            const btnResetBottom = document.getElementById('btnResetBottom');
+            const btnExportImage = document.getElementById('btnExportImage');
+            const btnExportImageLabel = document.getElementById('btnExportImageLabel');
+            const toastMessage = document.getElementById('toastMessage');
+            const toastText = document.getElementById('toastText');
+
+            /**
+             * Định dạng số nguyên thành chuỗi có dấu phẩy phân cách hàng nghìn + đơn vị đ
+             */
+            function formatCurrency(value) {
+                const safeNum = Math.round(Number(value) || 0);
+                return safeNum.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ',') + ' đ';
+            }
+
+            /**
+             * Hiển thị thông báo góc dưới bên phải
+             */
+            function showToast(message) {
+                toastText.textContent = message;
+                toastMessage.classList.remove('hidden');
+                if (toastTimer) clearTimeout(toastTimer);
+                toastTimer = setTimeout(() => {
+                    toastMessage.classList.add('hidden');
+                }, 2400);
+            }
+
+            /**
+             * Cập nhật giao diện trực quan của các thẻ KPI, Doanh số tháng, Doanh số quý
+             */
+            function updateSelectionStyles() {
+                kpiCheckboxes.forEach(cb => {
+                    const card = cb.closest('.kpi-card');
+                    if (!card) return;
+                    if (cb.checked) {
+                        card.classList.remove('border-slate-200', 'bg-white');
+                        card.classList.add('border-teal-500', 'bg-teal-50/60', 'ring-1', 'ring-teal-500/30');
+                    } else {
+                        card.classList.remove('border-teal-500', 'bg-teal-50/60', 'ring-1', 'ring-teal-500/30');
+                        card.classList.add('border-slate-200', 'bg-white');
+                    }
+                });
+
+                monthlySalesBtns.forEach(btn => {
+                    const amount = Number(btn.dataset.amount) || 0;
+                    const isSelected = amount > 0 && amount === selectedMonthlySales.amount;
+                    if (isSelected) {
+                        btn.classList.remove('border-slate-200', 'bg-white');
+                        btn.classList.add('border-cyan-500', 'bg-cyan-50/80', 'ring-1', 'ring-cyan-500/30');
+                    } else {
+                        btn.classList.remove('border-cyan-500', 'bg-cyan-50/80', 'ring-1', 'ring-cyan-500/30');
+                        btn.classList.add('border-slate-200', 'bg-white');
+                    }
+                });
+
+                quarterlySalesBtns.forEach(btn => {
+                    const amount = Number(btn.dataset.amount) || 0;
+                    const isSelected = amount > 0 && amount === selectedQuarterlySales.amount;
+                    if (isSelected) {
+                        btn.classList.remove('border-slate-200', 'bg-white');
+                        btn.classList.add('border-amber-500', 'bg-amber-50/80', 'ring-1', 'ring-amber-500/30');
+                    } else {
+                        btn.classList.remove('border-amber-500', 'bg-amber-50/80', 'ring-1', 'ring-amber-500/30');
+                        btn.classList.add('border-slate-200', 'bg-white');
+                    }
+                });
+            }
+
+            /**
+             * Đồng bộ dữ liệu mới nhất vào thẻ phiếu lương xuất ảnh
+             */
+            function syncExportCardData({
+                standardDays,
+                unpaidLeave,
+                paidHolidayLeave,
+                actualBaseSalary,
+                actualAllowance,
+                checkedKpiCount,
+                totalKpiBonus,
+                monthlyBonus,
+                quarterlyBonus,
+                boxRate,
+                boxQty,
+                boxBonus,
+                totalBonus,
+                socialInsuranceDeduction,
+                insuranceNote,
+                grandTotal,
+                statusText
+            }) {
+                const now = new Date();
+                const dateStr = now.toLocaleDateString('vi-VN', {
+                    day: '2-digit',
+                    month: '2-digit',
+                    year: 'numeric'
+                });
+
+                exportDateLabel.textContent = `Ngày xuất: ${dateStr}`;
+                exportTotalSalary.textContent = formatCurrency(grandTotal);
+                exportFinalTotal.textContent = formatCurrency(grandTotal);
+                exportStatusBadge.textContent = statusText;
+
+                exportWorkDays.textContent = (unpaidLeave > 0 || paidHolidayLeave > 0)
+                    ? `Chuẩn ${standardDays} ngày (KP: ${unpaidLeave} • P/Lễ: ${paidHolidayLeave})`
+                    : `Đủ ${standardDays}/${standardDays} ngày chuẩn`;
+
+                exportBaseSalary.textContent = formatCurrency(actualBaseSalary);
+                exportAllowance.textContent = formatCurrency(actualAllowance);
+
+                exportKpiLabel.textContent = `Thưởng KPI (${checkedKpiCount}/3)`;
+                exportKpiAmount.textContent = formatCurrency(totalKpiBonus);
+
+                exportMonthlyLabel.textContent = selectedMonthlySales.amount > 0
+                    ? `Thưởng doanh số tháng (${selectedMonthlySales.label})`
+                    : 'Thưởng doanh số tháng';
+                exportMonthlyAmount.textContent = formatCurrency(monthlyBonus);
+
+                exportQuarterlyLabel.textContent = selectedQuarterlySales.amount > 0
+                    ? `Thưởng doanh số quý (${selectedQuarterlySales.label})`
+                    : 'Thưởng doanh số quý';
+                exportQuarterlyAmount.textContent = formatCurrency(quarterlyBonus);
+
+                exportBoxLabel.textContent = boxBonus > 0
+                    ? `Thưởng đầu thùng (${boxQty.toLocaleString('en-US')} × ${formatCurrency(boxRate)})`
+                    : 'Thưởng đầu thùng';
+                exportBoxAmount.textContent = formatCurrency(boxBonus);
+
+                exportTotalBonus.textContent = formatCurrency(totalBonus);
+                exportInsuranceNote.textContent = insuranceNote;
+                exportInsuranceAmount.textContent = `-${formatCurrency(socialInsuranceDeduction)}`;
+            }
+
+            /**
+             * Tính toán toàn bộ lương và cập nhật giao diện theo thời gian thực
+             */
+            function calculateSalary() {
+                updateSelectionStyles();
+
+                // 1. Thu nhập cố định gốc
+                const baseSalary = Math.max(0, Number(inputBaseSalary.value) || 0);
+                const allowance = Math.max(0, Number(inputAllowance.value) || 0);
+                displayBaseSalary.textContent = formatCurrency(baseSalary);
+                displayAllowance.textContent = formatCurrency(allowance);
+
+                // 1B. Ngày công chuẩn & Ngày nghỉ
+                const standardDays = Math.max(1, Number(inputStandardDays.value) || DEFAULT_STANDARD_DAYS);
+                const unpaidLeave = Math.max(0, Number(inputUnpaidLeave.value) || 0);
+                const paidHolidayLeave = Math.max(0, Number(inputPaidHolidayLeave.value) || 0);
+
+                // Hệ số công thực tính LCB & KPI (chỉ trừ nghỉ không phép)
+                const effectiveDaysBaseKpi = Math.max(0, standardDays - unpaidLeave);
+                const ratioBaseKpi = effectiveDaysBaseKpi / standardDays;
+
+                // Hệ số công thực tính Phụ cấp (trừ cả nghỉ không phép và nghỉ có phép/lễ)
+                const effectiveDaysAllowance = Math.max(0, standardDays - unpaidLeave - paidHolidayLeave);
+                const ratioAllowance = effectiveDaysAllowance / standardDays;
+
+                workDaysBadge.textContent = `Công LCB/KPI: ${effectiveDaysBaseKpi}/${standardDays} • PC: ${effectiveDaysAllowance}/${standardDays}`;
+
+                // Lương cơ bản & Phụ cấp thực nhận sau khi chia công chuẩn
+                const actualBaseSalary = Math.round(baseSalary * ratioBaseKpi);
+                const actualAllowance = Math.round(allowance * ratioAllowance);
+
+                // 2. KPI (chia công chuẩn, chỉ trừ nghỉ không phép)
+                let checkedKpiCount = 0;
+                kpiCheckboxes.forEach(cb => {
+                    if (cb.checked) checkedKpiCount++;
+                });
+                const rawKpiBonus = checkedKpiCount * KPI_UNIT_VALUE;
+                const totalKpiBonus = Math.round(rawKpiBonus * ratioBaseKpi);
+
+                // 3. Doanh số tháng & Doanh số quý (độc lập, không cộng dồn nội bộ)
+                const monthlyBonus = selectedMonthlySales.amount;
+                const quarterlyBonus = selectedQuarterlySales.amount;
+
+                // 4. Thưởng đầu thùng
+                const boxRate = Math.max(0, Number(inputBoxRate.value) || 0);
+                const boxQty = Math.max(0, Number(inputBoxQty.value) || 0);
+                const boxBonus = Math.round(boxRate * boxQty);
+                boxBonusInlineTotal.textContent = `= ${formatCurrency(boxBonus)}`;
+
+                // 5. Khấu trừ BHXH bắt buộc (10.5% trên LCB, tự động áp trần 20 lần mức tham chiếu)
+                const insurableSalary = Math.min(baseSalary, SOCIAL_INSURANCE_CAP);
+                const socialInsuranceDeduction = Math.round(insurableSalary * SOCIAL_INSURANCE_RATE);
+
+                // 6. Tổng hợp
+                const totalBonus = totalKpiBonus + monthlyBonus + quarterlyBonus + boxBonus;
+                const grossIncome = actualBaseSalary + actualAllowance + totalBonus;
+                const grandTotal = Math.max(0, grossIncome - socialInsuranceDeduction);
+
+                // Cập nhật bảng chi tiết
+                totalSalaryDisplay.textContent = formatCurrency(grandTotal);
+
+                // Dòng Lương cơ bản
+                summaryBase.textContent = formatCurrency(actualBaseSalary);
+                if (actualBaseSalary < baseSalary) {
+                    const diffBase = baseSalary - actualBaseSalary;
+                    summaryBaseNote.textContent = `(-${formatCurrency(diffBase)})`;
+                    summaryBaseNote.classList.remove('hidden');
+                } else {
+                    summaryBaseNote.classList.add('hidden');
+                }
+
+                // Dòng Phụ cấp
+                summaryAllowance.textContent = formatCurrency(actualAllowance);
+                if (actualAllowance < allowance) {
+                    const diffAllowance = allowance - actualAllowance;
+                    summaryAllowanceNote.textContent = `(-${formatCurrency(diffAllowance)})`;
+                    summaryAllowanceNote.classList.remove('hidden');
+                } else {
+                    summaryAllowanceNote.classList.add('hidden');
+                }
+
+                // Dòng Thưởng KPI
+                summaryKpiCount.textContent = `${checkedKpiCount}/3`;
+                summaryKpiAmount.textContent = formatCurrency(totalKpiBonus);
+                summaryKpiAmount.className = totalKpiBonus > 0 ? 'font-semibold text-teal-600' : 'font-semibold text-slate-400';
+                if (totalKpiBonus < rawKpiBonus) {
+                    const diffKpi = rawKpiBonus - totalKpiBonus;
+                    summaryKpiNote.textContent = `(-${formatCurrency(diffKpi)})`;
+                    summaryKpiNote.classList.remove('hidden');
+                } else {
+                    summaryKpiNote.classList.add('hidden');
+                }
+
+                // Dòng Doanh số tháng
+                if (monthlyBonus > 0) {
+                    summaryMonthlyTag.textContent = `Đạt ${selectedMonthlySales.label}`;
+                    summaryMonthlyTag.classList.remove('hidden');
+                    summaryMonthlySales.textContent = formatCurrency(monthlyBonus);
+                    summaryMonthlySales.className = 'font-semibold text-cyan-700';
+                } else {
+                    summaryMonthlyTag.classList.add('hidden');
+                    summaryMonthlySales.textContent = '0 đ';
+                    summaryMonthlySales.className = 'font-semibold text-slate-400';
+                }
+
+                // Dòng Doanh số quý
+                if (quarterlyBonus > 0) {
+                    summaryQuarterlyTag.textContent = `Quý ${selectedQuarterlySales.label}`;
+                    summaryQuarterlyTag.classList.remove('hidden');
+                    summaryQuarterlySales.textContent = formatCurrency(quarterlyBonus);
+                    summaryQuarterlySales.className = 'font-semibold text-amber-700';
+                } else {
+                    summaryQuarterlyTag.classList.add('hidden');
+                    summaryQuarterlySales.textContent = '0 đ';
+                    summaryQuarterlySales.className = 'font-semibold text-slate-400';
+                }
+
+                // Dòng Thưởng đầu thùng
+                if (boxBonus > 0) {
+                    summaryBoxDetail.textContent = `(${boxQty.toLocaleString('en-US')} thùng × ${formatCurrency(boxRate)})`;
+                    summaryBoxDetail.classList.remove('hidden');
+                    summaryBoxBonus.textContent = formatCurrency(boxBonus);
+                    summaryBoxBonus.className = 'font-semibold text-indigo-700';
+                } else {
+                    summaryBoxDetail.classList.add('hidden');
+                    summaryBoxBonus.textContent = '0 đ';
+                    summaryBoxBonus.className = 'font-semibold text-slate-400';
+                }
+
+                // Tổng thưởng thêm & Nhãn trạng thái
+                summaryTotalBonus.textContent = formatCurrency(totalBonus);
+
+                // Dòng khấu trừ BHXH
+                summarySocialInsurance.textContent = `-${formatCurrency(socialInsuranceDeduction)}`;
+                let insuranceNote = 'BHXH 8% • BHYT 1.5% • BHTN 1%';
+                if (baseSalary > SOCIAL_INSURANCE_CAP) {
+                    insuranceNote = `BHXH 8% • BHYT 1.5% • BHTN 1% (Trần ${formatCurrency(SOCIAL_INSURANCE_CAP)})`;
+                } else if (unpaidLeave >= 14) {
+                    insuranceNote = 'BHXH 8% • BHYT 1.5% • BHTN 1% (Lưu ý: nghỉ ≥14 ngày)';
+                }
+                summarySocialInsuranceNote.textContent = insuranceNote;
+
+                let statusText = 'Lương cứng • Đã trừ BHXH';
+                if (totalBonus > 0) {
+                    statusText = 'Có thưởng • Đã trừ BHXH';
+                    badgeStatus.textContent = statusText;
+                    badgeStatus.className = 'text-[10px] px-2 py-0.5 rounded-full bg-teal-500/20 text-teal-200 border border-teal-400/30';
+                } else {
+                    badgeStatus.textContent = statusText;
+                    badgeStatus.className = 'text-[10px] px-2 py-0.5 rounded-full bg-white/10 text-slate-200 border border-white/10';
+                }
+
+                syncExportCardData({
+                    standardDays,
+                    unpaidLeave,
+                    paidHolidayLeave,
+                    actualBaseSalary,
+                    actualAllowance,
+                    checkedKpiCount,
+                    totalKpiBonus,
+                    monthlyBonus,
+                    quarterlyBonus,
+                    boxRate,
+                    boxQty,
+                    boxBonus,
+                    totalBonus,
+                    socialInsuranceDeduction,
+                    insuranceNote,
+                    grandTotal,
+                    statusText
+                });
+            }
+
+            // Chuyển đổi chế độ sửa Lương cơ bản & Phụ cấp gốc
+            toggleEditFixedBtn.addEventListener('click', () => {
+                isEditingFixed = !isEditingFixed;
+                if (isEditingFixed) {
+                    displayBaseSalary.classList.add('hidden');
+                    displayAllowance.classList.add('hidden');
+                    editBaseWrapper.classList.remove('hidden');
+                    editAllowanceWrapper.classList.remove('hidden');
+                    toggleEditFixedBtn.textContent = 'Xong';
+                } else {
+                    displayBaseSalary.classList.remove('hidden');
+                    displayAllowance.classList.remove('hidden');
+                    editBaseWrapper.classList.add('hidden');
+                    editAllowanceWrapper.classList.add('hidden');
+                    toggleEditFixedBtn.textContent = 'Sửa mức gốc';
+                }
+            });
+
+            // Sự kiện nhập liệu Thu nhập cố định
+            inputBaseSalary.addEventListener('input', calculateSalary);
+            inputAllowance.addEventListener('input', calculateSalary);
+
+            // Sự kiện nhập liệu Ngày công & Nghỉ phép
+            inputStandardDays.addEventListener('input', calculateSalary);
+            inputUnpaidLeave.addEventListener('input', calculateSalary);
+            inputPaidHolidayLeave.addEventListener('input', calculateSalary);
+
+            // Sự kiện tích chọn KPI
+            kpiCheckboxes.forEach(cb => {
+                cb.addEventListener('change', calculateSalary);
+            });
+
+            // Sự kiện chọn mốc Doanh số tháng (không cộng dồn, bấm lại để bỏ chọn)
+            monthlySalesBtns.forEach(btn => {
+                btn.addEventListener('click', () => {
+                    const amount = Number(btn.dataset.amount) || 0;
+                    const label = btn.dataset.label || '';
+                    if (selectedMonthlySales.amount === amount) {
+                        selectedMonthlySales = { amount: 0, label: '' };
+                    } else {
+                        selectedMonthlySales = { amount, label };
+                    }
+                    calculateSalary();
+                });
+            });
+
+            // Sự kiện chọn mốc Doanh số quý (không cộng dồn, bấm lại để bỏ chọn)
+            quarterlySalesBtns.forEach(btn => {
+                btn.addEventListener('click', () => {
+                    const amount = Number(btn.dataset.amount) || 0;
+                    const label = btn.dataset.label || '';
+                    if (selectedQuarterlySales.amount === amount) {
+                        selectedQuarterlySales = { amount: 0, label: '' };
+                    } else {
+                        selectedQuarterlySales = { amount, label };
+                    }
+                    calculateSalary();
+                });
+            });
+
+            // Sự kiện nhập liệu Thưởng đầu thùng
+            inputBoxRate.addEventListener('input', calculateSalary);
+            inputBoxQty.addEventListener('input', calculateSalary);
+
+            // Nút chọn nhanh Tối đa tháng (3 KPI + Doanh số tháng 115%)
+            btnMaxAll.addEventListener('click', () => {
+                kpiCheckboxes.forEach(cb => {
+                    cb.checked = true;
+                });
+                selectedMonthlySales = { amount: 3500000, label: '115%' };
+                calculateSalary();
+                showToast('Đã chọn tối đa 3 KPI & Doanh số tháng 115%');
+            });
+
+            // Hàm đặt lại toàn bộ về mặc định
+            function resetAll() {
+                inputBaseSalary.value = DEFAULT_BASE_SALARY;
+                inputAllowance.value = DEFAULT_ALLOWANCE;
+                inputStandardDays.value = DEFAULT_STANDARD_DAYS;
+                inputUnpaidLeave.value = 0;
+                inputPaidHolidayLeave.value = 0;
+                kpiCheckboxes.forEach(cb => {
+                    cb.checked = false;
+                });
+                selectedMonthlySales = { amount: 0, label: '' };
+                selectedQuarterlySales = { amount: 0, label: '' };
+                inputBoxRate.value = '';
+                inputBoxQty.value = '';
+
+                if (isEditingFixed) {
+                    toggleEditFixedBtn.click();
+                }
+
+                calculateSalary();
+                showToast('Đã đặt lại bảng lương về mặc định');
+            }
+
+            btnReset.addEventListener('click', resetAll);
+            btnResetBottom.addEventListener('click', resetAll);
+
+            // Tải file ảnh PNG xuống thiết bị
+            function triggerDownload(dataUrl, filename) {
+                const link = document.createElement('a');
+                link.href = dataUrl;
+                link.download = filename;
+                document.body.appendChild(link);
+                link.click();
+                document.body.removeChild(link);
+            }
+
+            // Xuất hình ảnh bảng lương
+            btnExportImage.addEventListener('click', async () => {
+                if (isExportingImage) return;
+                if (typeof html2canvas !== 'function') {
+                    showToast('Không thể tải thư viện xuất ảnh, vui lòng kiểm tra mạng!');
+                    return;
+                }
+
+                isExportingImage = true;
+                btnExportImage.disabled = true;
+                const originalLabel = btnExportImageLabel.textContent;
+                btnExportImageLabel.textContent = 'Đang tạo ảnh...';
+
+                try {
+                    calculateSalary();
+
+                    const canvas = await html2canvas(salaryExportCard, {
+                        scale: 2,
+                        useCORS: true,
+                        backgroundColor: '#ffffff'
+                    });
+
+                    const now = new Date();
+                    const stamp = `${now.getFullYear()}${String(now.getMonth() + 1).padStart(2, '0')}${String(now.getDate()).padStart(2, '0')}`;
+                    const filename = `bang-luong-${stamp}.png`;
+                    const dataUrl = canvas.toDataURL('image/png');
+
+                    // Trên thiết bị di động hỗ trợ chia sẻ file trực tiếp
+                    if (navigator.canShare && navigator.share) {
+                        const blob = await new Promise(resolve => canvas.toBlob(resolve, 'image/png'));
+                        if (blob) {
+                            const file = new File([blob], filename, { type: 'image/png' });
+                            if (navigator.canShare({ files: [file] })) {
+                                triggerDownload(dataUrl, filename);
+                                showToast('Đã xuất hình ảnh bảng lương (.png)!');
+                                return;
+                            }
+                        }
+                    }
+
+                    triggerDownload(dataUrl, filename);
+                    showToast('Đã xuất hình ảnh bảng lương (.png)!');
+                } catch (err) {
+                    showToast('Có lỗi khi xuất hình ảnh, vui lòng thử lại!');
+                } finally {
+                    isExportingImage = false;
+                    btnExportImage.disabled = false;
+                    btnExportImageLabel.textContent = originalLabel;
+                }
+            });
+
+            // Khởi chạy tính toán ngay khi tải trang
+            calculateSalary();
+        });
+    </script>
+</body>
+</html>
